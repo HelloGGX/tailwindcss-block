@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "watch:extension": "pnpm --filter extension watch"
+    "watch:extension": "pnpm --filter component-market watch"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
