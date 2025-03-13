@@ -196,8 +196,19 @@ export class ComponentMarketPanel {
    * @param filters 过滤条件
    */
   private async _handleGetComponents(filters: ComponentFilters): Promise<void> {
-    const components = await this.componentService.getComponents(filters);
-    this._postMessageToWebview("componentsResult", { components });
+    try {
+      const components = await this.componentService.getComponents(filters);
+      this._postMessageToWebview("componentsResult", { components, filters });
+    } catch (error) {
+      // 发送错误信息到WebView，包含原始过滤条件
+      this._postMessageToWebview("componentsResult", {
+        components: [],
+        error: `无法加载组件: ${error}`,
+        filters,
+      });
+      // 显示错误消息
+      vscode.window.showErrorMessage(`无法加载组件: ${error}`);
+    }
   }
 
   /**
@@ -760,7 +771,7 @@ export class ComponentMarketPanel {
             const container = document.getElementById(containerId);
             currentComponents = components;
             
-            if (components.length === 0) {
+            if (!components || components.length === 0) {
               container.innerHTML = '<div class="col-span-full text-center py-8">没有找到组件</div>';
               return;
             }
@@ -819,10 +830,25 @@ export class ComponentMarketPanel {
             
             switch (message.command) {
               case 'componentsResult':
-                if (document.getElementById('market-view').classList.contains('hidden')) {
-                  renderComponents(message.components, 'favorites-grid');
+                if (message.error) {
+                  const grid = document.getElementById(message.filters?.favorites ? 'favorites-grid' : 'components-grid');
+                  if (grid) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-8">
+                    <p class="text-red-500 font-bold">加载失败</p>
+                    <button id="retry-load" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">重试</button>
+                    </div>';
+                    // 添加重试按钮事件
+                    document.getElementById('retry-load')?.addEventListener('click', () => {
+                      if (message.filters?.favorites) {
+                        loadFavorites();
+                      } else {
+                        loadComponents();
+                      }
+                    });
+                  }
                 } else {
-                  renderComponents(message.components, 'components-grid');
+                  const containerId = message.filters?.favorites ? 'favorites-grid' : 'components-grid';
+                  renderComponents(message.components, containerId);
                 }
                 break;
                 

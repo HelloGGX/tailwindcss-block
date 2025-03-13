@@ -37,7 +37,7 @@
         {
           "id": "tailwindcss-block",
           "title": "Tailwind CSS 组件",
-          "icon": "resources/icon.svg"
+          "icon": "src/assets/icon.svg"
         }
       ]
     },
