@@ -1,6 +1,6 @@
-# component-market README
+# market README
 
-This is the README for your extension "component-market". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "market". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
